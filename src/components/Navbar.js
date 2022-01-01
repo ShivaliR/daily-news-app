@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-
 export class Navbar extends Component {
   render() {
     return (
       <div>
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
           <div className="container-fluid">
             <a className="navbar-brand" href="/">
               Daily News
@@ -43,7 +42,7 @@ export class Navbar extends Component {
                   placeholder="Search"
                   aria-label="Search"
                 />
-                <button className="btn btn-outline-dark" type="submit">
+                <button className="btn btn-outline-light" type="submit">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"

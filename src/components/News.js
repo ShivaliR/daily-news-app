@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import NewsItem from "./NewsItem";
+import Spinner from "./Spinner";
 
 export class News extends Component {
-  // articles = [
+  // results = [
   //     {
   //       "source": {
   //         "id": null,
@@ -176,20 +177,23 @@ export class News extends Component {
   constructor() {
     super();
     this.state = {
-      articles: [],
+      results: [],
       page: 1,
+      loading: false
     };
   }
   nextClick = async () => {
-    let url = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=88d93eaf91f546448e96abd2bb8cf9f1&page=${
+    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en&page=${
       this.state.page + 1
     }`;
-    let data = await fetch(url);
+    this.setState({loading: true});
+    let data = await fetch(apiUrl);
     let parsedData = await data.json();
-    if (parsedData.articles != 0) {
+    if (parsedData.results != 0) {
       this.setState({
-        articles: parsedData.articles,
+        results: parsedData.results,
         page: this.state.page + 1,
+        loading: false
       });
     } else {
       document.getElementById("next").disabled = true;
@@ -197,35 +201,38 @@ export class News extends Component {
   };
   prevClick = async () => {
     document.getElementById("next").disabled = false;
-    let url = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=88d93eaf91f546448e96abd2bb8cf9f1&page=${
+    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en&page=${
       this.state.page - 1
     }`;
-    let data = await fetch(url);
+    this.setState({loading: true})
+    let data = await fetch(apiUrl);
     let parsedData = await data.json();
-    this.setState({ articles: parsedData.articles, page: this.state.page - 1 });
+    this.setState({ results: parsedData.results, page: this.state.page - 1 ,loading: false});
   };
   async componentDidMount() {
-    let url =
-      "https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=88d93eaf91f546448e96abd2bb8cf9f1";
-    let data = await fetch(url);
+    let apiUrl =
+      "https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en";
+      this.setState({loading: true})
+    let data = await fetch(apiUrl);
     let parsedData = await data.json();
-    this.setState({ articles: parsedData.articles });
+    this.setState({ results: parsedData.results, loading: false });
   }
   render() {
     return (
       <div className="container my-3">
-        <h2>News App - Top Headlines.</h2>
-        <div className="row">
-          {this.state.articles.map((element) => {
+        <h2><center>News App - Top Headlines.</center></h2>
+        {this.state.loading && <Spinner/>}
+        <div className="row mx-3">
+          {this.state.results.map((element) => {
             return (
-              <div className="col-md-3" key={element.url}>
+              <div className="col-md-3" key={element.link}>
                 <NewsItem
                   title={element.title ? element.title.slice(0, 45) : ""}
                   description={
                     element.description ? element.description.slice(0, 88) : ""
                   }
-                  imgUrl={element.urlToImage}
-                  newsUrl={element.url}
+                  image_url={element.image_url}
+                  newsUrl={element.link}
                 />
               </div>
             );
