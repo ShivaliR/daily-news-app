@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import NewsItem from "./NewsItem";
 import Spinner from "./Spinner";
+import propTypes from "prop-types";
 
 export class News extends Component {
   // results = [
@@ -179,21 +180,31 @@ export class News extends Component {
     this.state = {
       results: [],
       page: 1,
-      loading: false
+      loading: false,
     };
   }
+  static defaultProps = {
+    country: 'in',
+    pageSize: 8,
+    category: 'general'
+  }
+  static propTypes = {
+    country: propTypes.string,
+    pageSize: propTypes.number,
+    category: propTypes.string
+  }
   nextClick = async () => {
-    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en&page=${
+    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&country=${this.props.country}&category=${this.props.category}&language=en&page=${
       this.state.page + 1
     }`;
-    this.setState({loading: true});
+    this.setState({ loading: true });
     let data = await fetch(apiUrl);
     let parsedData = await data.json();
-    if (parsedData.results != 0) {
+    if (parsedData.results !== 0) {
       this.setState({
         results: parsedData.results,
         page: this.state.page + 1,
-        loading: false
+        loading: false,
       });
     } else {
       document.getElementById("next").disabled = true;
@@ -201,42 +212,52 @@ export class News extends Component {
   };
   prevClick = async () => {
     document.getElementById("next").disabled = false;
-    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en&page=${
-      this.state.page - 1
+    let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&country=${this.props.country}&category=${this.props.category}&language=en&page=${
+      this.state.page + 1
     }`;
-    this.setState({loading: true})
+    this.setState({ loading: true });
     let data = await fetch(apiUrl);
     let parsedData = await data.json();
-    this.setState({ results: parsedData.results, page: this.state.page - 1 ,loading: false});
+    this.setState({
+      results: parsedData.results,
+      page: this.state.page - 1,
+      loading: false,
+    });
   };
   async componentDidMount() {
-    let apiUrl =
-      "https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&language=en";
-      this.setState({loading: true})
+      let apiUrl = `https://newsdata.io/api/1/news?apikey=pub_32551c662d7cb992ce5915c4a415f6009e6f&country=${this.props.country}&category=${this.props.category}&language=en`;
+    this.setState({ loading: true });
     let data = await fetch(apiUrl);
     let parsedData = await data.json();
     this.setState({ results: parsedData.results, loading: false });
   }
   render() {
     return (
-      <div className="container my-3">
-        <h2><center>News App - Top Headlines.</center></h2>
-        {this.state.loading && <Spinner/>}
-        <div className="row mx-3">
-          {this.state.results.map((element) => {
-            return (
-              <div className="col-md-3" key={element.link}>
-                <NewsItem
-                  title={element.title ? element.title.slice(0, 45) : ""}
-                  description={
-                    element.description ? element.description.slice(0, 88) : ""
-                  }
-                  image_url={element.image_url}
-                  newsUrl={element.link}
-                />
-              </div>
-            );
-          })}
+      <div className="container">
+        <h2 style={{margin: '60px 0px'}}>
+          <center>News App - Top Headlines</center>
+        </h2>
+        {this.state.loading && <Spinner />}
+        <div className="row">
+          {!this.state.loading &&
+            this.state.results.map((element) => {
+              return (
+                <div className="col-md-4" key={element.link}>
+                  <NewsItem
+                    title={element.title ? element.title.slice(0, 45) : ""}
+                    description={
+                      element.description
+                        ? element.description.slice(0, 88)
+                        : ""
+                    }
+                    image_url={element.image_url}
+                    newsUrl={element.link}
+                    author={element.source_id}
+                    date={element.pubDate}
+                  />
+                </div>
+              );
+            })}
         </div>
         <div className="d-flex justify-content-between">
           <button
